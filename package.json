@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@prisma/client": "^7.8.0",
+    "@prisma/client": "^5.22.0",
     "bcryptjs": "^2.4.3",
     "lucide-react": "^0.468.0",
     "next": "^15.1.0",
