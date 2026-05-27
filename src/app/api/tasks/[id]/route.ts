@@ -5,20 +5,21 @@ import { prisma } from "@/lib/prisma"
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
+    const { id } = await params
     const body = await request.json()
     const { status, priority } = body
 
     const task = await prisma.task.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(status && { status }),
         ...(priority && { priority })
@@ -57,21 +58,23 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
+    const { id } = await params
+
     await prisma.comment.deleteMany({
-      where: { taskId: params.id }
+      where: { taskId: id }
     })
 
     await prisma.task.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ message: "Tarefa deletada com sucesso" })
