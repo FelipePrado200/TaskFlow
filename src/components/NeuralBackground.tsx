@@ -108,12 +108,12 @@ export default function NeuralBackground({ density = 80 }: { density?: number })
       stars.forEach(star => {
         star.twinkle += star.twinkleSpeed
         const tw = Math.sin(star.twinkle) * 0.5 + 0.5
-        const alpha = star.opacity * (0.4 + tw * 0.6) * (isDark ? 1 : 0.4)
+        const alpha = star.opacity * (0.4 + tw * 0.6) * (isDark ? 1 : 0.7)
 
         if (isDark) {
           ctx.fillStyle = `rgba(200, 220, 255, ${alpha})`
         } else {
-          ctx.fillStyle = `rgba(99, 102, 241, ${alpha})`
+          ctx.fillStyle = `rgba(124, 58, 237, ${alpha})`
         }
         ctx.beginPath()
         ctx.arc(star.x, star.y, star.size * (0.7 + tw * 0.3), 0, Math.PI * 2)
@@ -126,8 +126,8 @@ export default function NeuralBackground({ density = 80 }: { density?: number })
             glow.addColorStop(0, `rgba(200, 220, 255, ${alpha * 0.3})`)
             glow.addColorStop(1, "rgba(200, 220, 255, 0)")
           } else {
-            glow.addColorStop(0, `rgba(99, 102, 241, ${alpha * 0.15})`)
-            glow.addColorStop(1, "rgba(99, 102, 241, 0)")
+            glow.addColorStop(0, `rgba(124, 58, 237, ${alpha * 0.25})`)
+            glow.addColorStop(1, "rgba(124, 58, 237, 0)")
           }
           ctx.fillStyle = glow
           ctx.beginPath()
@@ -162,14 +162,14 @@ export default function NeuralBackground({ density = 80 }: { density?: number })
           const dist = Math.sqrt(dx * dx + dy * dy)
 
           if (dist < maxDist) {
-            const opacity = (1 - dist / maxDist) * 0.35
+            const opacity = (1 - dist / maxDist) * (isDark ? 0.35 : 0.55)
             const midHue = (nodes[i].hue + nodes[j].hue) / 2
             const gradient = ctx.createLinearGradient(nodes[i].x, nodes[i].y, nodes[j].x, nodes[j].y)
-            gradient.addColorStop(0, hsl(nodes[i].hue, 80, 65, opacity))
-            gradient.addColorStop(0.5, hsl(midHue, 85, 70, opacity * 0.8))
-            gradient.addColorStop(1, hsl(nodes[j].hue, 80, 65, opacity))
+            gradient.addColorStop(0, hsl(nodes[i].hue, 80, isDark ? 65 : 45, opacity))
+            gradient.addColorStop(0.5, hsl(midHue, 85, isDark ? 70 : 50, opacity * 0.8))
+            gradient.addColorStop(1, hsl(nodes[j].hue, 80, isDark ? 65 : 45, opacity))
             ctx.strokeStyle = gradient
-            ctx.lineWidth = 0.6 + (1 - dist / maxDist) * 0.8
+            ctx.lineWidth = 0.6 + (1 - dist / maxDist) * (isDark ? 0.8 : 1.2)
             ctx.beginPath()
             ctx.moveTo(nodes[i].x, nodes[i].y)
             ctx.lineTo(nodes[j].x, nodes[j].y)
@@ -182,9 +182,9 @@ export default function NeuralBackground({ density = 80 }: { density?: number })
         const mdy = mouseRef.current.y - nodes[i].y
         const md = Math.sqrt(mdx * mdx + mdy * mdy)
         if (md < mouseDist) {
-          const opacity = (1 - md / mouseDist) * 0.5
-          ctx.strokeStyle = hsl(nodes[i].hue, 90, 75, opacity)
-          ctx.lineWidth = 1.2
+          const opacity = (1 - md / mouseDist) * (isDark ? 0.5 : 0.7)
+          ctx.strokeStyle = hsl(nodes[i].hue, 90, isDark ? 75 : 45, opacity)
+          ctx.lineWidth = isDark ? 1.2 : 1.6
           ctx.beginPath()
           ctx.moveTo(nodes[i].x, nodes[i].y)
           ctx.lineTo(mouseRef.current.x, mouseRef.current.y)
@@ -199,9 +199,9 @@ export default function NeuralBackground({ density = 80 }: { density?: number })
 
         // outer glow
         const outerGlow = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, r * 5)
-        outerGlow.addColorStop(0, hsl(node.hue, 90, 60, 0.25 * pulse + 0.08))
-        outerGlow.addColorStop(0.5, hsl(node.hue, 85, 50, 0.1 * pulse + 0.03))
-        outerGlow.addColorStop(1, `hsla(${node.hue}, 80%, 50%, 0)`)
+        outerGlow.addColorStop(0, hsl(node.hue, 90, isDark ? 60 : 45, 0.25 * pulse + (isDark ? 0.08 : 0.15)))
+        outerGlow.addColorStop(0.5, hsl(node.hue, 85, isDark ? 50 : 40, 0.1 * pulse + (isDark ? 0.03 : 0.08)))
+        outerGlow.addColorStop(1, `hsla(${node.hue}, 80%, ${isDark ? 50 : 40}%, 0)`)
         ctx.fillStyle = outerGlow
         ctx.beginPath()
         ctx.arc(node.x, node.y, r * 5, 0, Math.PI * 2)
@@ -209,15 +209,15 @@ export default function NeuralBackground({ density = 80 }: { density?: number })
 
         // inner glow
         const innerGlow = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, r * 2)
-        innerGlow.addColorStop(0, hsl(node.hue, 95, 85, 0.9))
-        innerGlow.addColorStop(1, hsl(node.hue, 90, 60, 0))
+        innerGlow.addColorStop(0, hsl(node.hue, 95, isDark ? 85 : 55, 0.9))
+        innerGlow.addColorStop(1, hsl(node.hue, 90, isDark ? 60 : 45, 0))
         ctx.fillStyle = innerGlow
         ctx.beginPath()
         ctx.arc(node.x, node.y, r * 2, 0, Math.PI * 2)
         ctx.fill()
 
         // core
-        ctx.fillStyle = `hsla(${node.hue}, 100%, 95%, ${0.85 + pulse * 0.15})`
+        ctx.fillStyle = `hsla(${node.hue}, 100%, ${isDark ? 95 : 40}%, ${isDark ? 0.85 + pulse * 0.15 : 0.7 + pulse * 0.2})`
         ctx.beginPath()
         ctx.arc(node.x, node.y, r * 0.6, 0, Math.PI * 2)
         ctx.fill()
@@ -247,7 +247,7 @@ export default function NeuralBackground({ density = 80 }: { density?: number })
       <div className="absolute inset-0 hidden dark:block bg-[radial-gradient(ellipse_at_top,_#0f0c29_0%,_#1a1033_25%,_#0d1117_60%,_#020617_100%)]" />
       
       {/* Light mode soft gradient */}
-      <div className="absolute inset-0 dark:hidden bg-gradient-to-br from-slate-50 via-indigo-50/30 to-cyan-50/20" />
+      <div className="absolute inset-0 dark:hidden bg-gradient-to-br from-slate-50 via-indigo-100/40 to-cyan-100/30" />
 
       {/* Aurora-like color washes - dark */}
       <div className="absolute inset-0 hidden dark:block opacity-30"
@@ -256,10 +256,10 @@ export default function NeuralBackground({ density = 80 }: { density?: number })
         }}
       />
 
-      {/* Light mode subtle aurora */}
-      <div className="absolute inset-0 dark:hidden opacity-40"
+      {/* Light mode vibrant aurora */}
+      <div className="absolute inset-0 dark:hidden opacity-60"
         style={{
-          background: `radial-gradient(ellipse 60% 40% at 30% 30%, rgba(139, 92, 246, 0.08), transparent), radial-gradient(ellipse 50% 50% at 70% 70%, rgba(6, 182, 212, 0.06), transparent)`
+          background: `radial-gradient(ellipse 60% 40% at 30% 30%, rgba(124, 58, 237, 0.12), transparent), radial-gradient(ellipse 50% 50% at 70% 70%, rgba(2, 132, 199, 0.1), transparent), radial-gradient(ellipse 60% 50% at 50% 80%, rgba(219, 39, 119, 0.08), transparent)`
         }}
       />
 
